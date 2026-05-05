@@ -1,0 +1,51 @@
+question_number,topic_code,topic_name,correct_answer,misconception_A,misconception_B,misconception_C,misconception_D
+1,A1.1.1,CPU Components,A,,Confuses PC and IR,Confuses MDR with address register,Confuses Accumulator with PC
+2,A1.1.1,CPU Components,C,Confuses data bus with address bus,Believes control bus handles addressing,,Invented register bus concept
+3,A1.1.1,CPU Components,B,More cores always wins - ignores Amdahl's Law,,Clock speed is the only metric,Treats GHz as additive across cores
+4,A1.1.1,CPU Components,D,Results stored in MDR not accumulator,Confuses PC with result storage,Confuses CU with storage,
+5,A1.1.2,GPU Architecture,A,,I/O event handling benefits from GPU,OS management parallelised by GPU,OS scheduler accelerated by GPU
+6,A1.1.2,GPU Architecture,C,GPUs have fewer powerful cores - reversed architecture,GPUs distinguished only by clock speed,,Invents GPU memory management unit
+7,A1.1.3,CPU-GPU Cooperation,D,Reverses CPU and GPU roles,OS arbitrarily assigns all work,More cores handles all computation,
+8,A1.1.4,Primary Memory,B,Confuses cache with ROM or firmware,,Confuses cache with virtual memory,Confuses cache with BIOS storage
+9,A1.1.4,Primary Memory,C,Reverses cache hit and miss labels,Confuses miss with cache corruption,,Confuses miss with write-rejection
+10,A1.1.4,Primary Memory,A,,RAM above L1 in hierarchy,L1 Cache above registers,RAM above both cache levels
+11,A1.1.5,Fetch-Decode-Execute Cycle,D,PC increments after execution completes,PC increments after decode,PC pre-increments before fetch,
+12,A1.1.5,Fetch-Decode-Execute Cycle,B,Confuses decode with fetch,,Confuses decode with execute,Confuses decode with write-back
+13,A1.1.5,Fetch-Decode-Execute Cycle,A,,Branch stores target in MDR,Condition evaluated but PC not updated,Branch clears and reloads IR
+14,A1.1.6,Pipelining,C,Empty instruction stream equals data hazard,I/O resource conflict is a data hazard,,Pipeline stages related to core count
+15,A1.1.6,Pipelining,B,Confuses pipelining with overclocking,,Confuses pipelining with multi-core,Pipelining removes stages
+16,A1.1.6,Pipelining,D,Confuses write-back with output to display,Confuses write-back with checkpointing,Invents pre-fetch write into IR,
+17,A1.1.7,Secondary Storage,C,Prioritises speed over cost for classification,Confuses RAM with secondary storage,,Confuses L3 cache with secondary storage
+18,A1.1.7,Secondary Storage,A,,Confuses eMMC with HDD,Confuses eMMC with NVMe SSD,Confuses eMMC with optical storage
+19,A1.1.8,Compression,B,Lossy decompression restores original data,,Each cycle compounds degradation,All decompression is reversible
+20,A1.1.8,Compression,D,RLE efficiency independent of data pattern,More detail means better RLE,RLE is text-only,
+21,A1.1.8,Compression,B,Gives absolute saving not ratio,,Gives compressed fraction as percentage,Inverts compression ratio
+22,A1.1.9,Cloud Computing,A,,IaaS when scenario says no server management,Confuses SaaS with PaaS,Misapplies NaaS
+23,A1.1.9,Cloud Computing,C,Confuses IaaS with SaaS,Confuses IaaS with PaaS,,Cloud equals on-premises
+24,A1.1.9,Cloud Computing,B,SaaS gives infrastructure control,,PaaS users manage the OS,All cloud eliminates expertise need
+25,A1.2.1,Number Systems,D,Off-by-one error: 256 instead of 255,Reverses nibbles,Only MSB place value of 128,
+26,A1.2.1,Number Systems,A,,Reverses nibble order for hex,Octal or arithmetic conversion error,Misreads last nibble
+27,A1.2.1,Number Systems,C,Multiplies not exponentiates to get 64,Confuses 2^32 with 32 million,,Wrong exponent: 2^12 gives 4096
+28,A1.2.2,Binary Representation,D,24 bits means only 24 colours,Confuses depth with resolution,Confuses depth with file size,
+29,A1.2.2,Binary Representation,B,Blames language bug not IEEE 754,,Truncates to integer before adding,Algorithmic difference not representation
+30,A1.2.2,Binary Representation,A,,UTF-8 faster than ASCII,UTF-8 is one byte per character,UTF-8 replaces binary storage
+31,A1.2.3,Logic Gates,C,Applies OR logic to XOR gate,Applies AND logic to XOR gate,,XOR only activates for single input
+32,A1.2.3,Logic Gates,D,AND alone is functionally complete,OR alone is functionally complete,XOR is functionally complete,
+33,A1.2.4,Truth Tables,B,Rows equal number of inputs not 2^n,,Doubles instead of 2^n to get 6,Squares instead of 2^n to get 9
+34,A1.2.4,Karnaugh Maps,A,,Groups must be exactly 2 cells,Groups must not overlap,Groups must be diagonal
+35,A1.2.4,Karnaugh Maps,C,Maximises number of groups incorrectly,All 1s covered but no size rule,,Non-overlapping groups only
+36,A1.2.5,Logic Diagrams,D,One gate for whole expression,Counts AND and OR but forgets NOT,Overcounts gates in circuit,
+37,A1.3.1,Operating System Role,B,OS directly executes programs,,OS is antivirus,OS is only a file manager
+38,A1.3.2,OS and Drivers,A,,Apps access hardware directly,CPU has built-in storage controller,BIOS manages all storage always
+39,A1.3.2,Virtual Memory,C,Virtual memory equals VRAM,Virtual memory equals CPU cache,,Virtual memory is reserved address space
+40,A1.3.3,Scheduling,D,Smaller quantum always better,Round-robin uses priority,Degrades to FCFS with large quantum,
+41,A1.3.3,Scheduling,B,Short processes cause convoy effect,,Queuing together is a benefit of FCFS,OS reorders FCFS by burst time
+42,A1.3.4,Polling and Interrupts,A,,Polling for consistent response time,Polling due to device simplicity,Correct method but wrong reasoning
+43,A1.3.4,Polling and Interrupts,C,Interrupts for immediate response,Interrupts for lower power,,Polling is correct but wrong justification
+44,A1.3.5,Deadlock,D,Confuses mutual exclusion with hold-and-wait,Confuses no-preemption with hold-and-wait,Confuses circular wait with hold-and-wait,
+45,A1.3.5,Deadlock,B,Scheduling conflict is not deadlock,,Confuses deadlock with starvation,Confuses deadlock with race condition
+46,A1.3.6,Control Systems,A,,Invents feedback for open-loop system,Timer equals PID controller,DAC as system classifier
+47,A1.3.7,Feedback Systems,C,Feedback equals performance enhancement,Feedback equals power protection,,Confuses ADC with feedback purpose
+48,A1.4.1,Translation,B,Python compiles before running,,Python reports all errors at end,Dynamic typing ignores errors
+49,A1.4.1,Translation,A,,JIT runs without VM,JIT eliminates runtime errors,JIT improves platform independence
+50,A1.4.1,Translation,D,Confuses bytecode with JIT timing,.class equals native machine code,JVM interprets source directly,
