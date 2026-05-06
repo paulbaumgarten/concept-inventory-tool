@@ -1,0 +1,16 @@
+Timestamp,Email Address,Full Name,Q1 - Program Counter,Q2 - Buses,Q3 - FDE Cycle,Q4 - Cache Miss,Q5 - Memory Hierarchy,Q6 - GPU,Q7 - Secondary Storage,Q8 - RLE Compression,Q9 - Binary,Q10 - Logic Gates
+2024-09-03 08:14:22,alice.adams@school.edu,Alice Adams,B,C,C,B,B,B,B,B,C,B
+2024-09-03 08:17:05,bob.baker@school.edu,Bob Baker,A,A,A,C,A,A,A,A,A,A
+2024-09-03 08:19:33,carol.carter@school.edu,Carol Carter,B,C,C,B,B,B,B,B,B,B
+2024-09-03 08:22:11,david.davis@school.edu,David Davis,B,C,A,B,B,B,B,B,C,B
+2024-09-03 08:25:47,emma.evans@school.edu,Emma Evans,A,C,C,A,B,B,B,A,C,C
+2024-09-03 08:28:02,frank.foster@school.edu,Frank Foster,B,C,C,B,B,A,B,B,C,B
+2024-09-03 08:31:19,grace.green@school.edu,Grace Green,D,B,C,B,C,B,A,B,B,B
+2024-09-03 08:34:55,henry.harris@school.edu,Henry Harris,B,C,C,B,B,B,B,B,C,B
+2024-09-03 08:38:23,iris.irving@school.edu,Iris Irving,B,A,C,B,B,B,B,C,C,B
+2024-09-03 08:41:07,jack.johnson@school.edu,Jack Johnson,A,C,B,C,A,A,D,A,D,C
+2024-09-03 08:44:39,karen.king@school.edu,Karen King,B,C,C,B,B,B,A,B,C,B
+2024-09-03 08:47:58,liam.lewis@school.edu,Liam Lewis,B,C,C,B,B,B,B,B,A,B
+2024-09-03 08:51:14,maya.miller@school.edu,Maya Miller,A,B,A,A,A,C,A,A,B,A
+2024-09-03 08:54:30,noah.nelson@school.edu,Noah Nelson,B,C,C,B,B,B,B,B,C,B
+2024-09-03 08:57:45,olivia.owens@school.edu,Olivia Owens,B,C,A,B,B,B,B,B,C,B

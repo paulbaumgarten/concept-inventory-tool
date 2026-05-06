@@ -182,3 +182,5 @@ cython_debug/
 
 output/
 class_data/
+.DS_Store
+/ignore
