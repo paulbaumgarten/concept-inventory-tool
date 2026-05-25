@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSV to JSON Converter — Concept Inventory Tool</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .converter-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .converter-section {
+      margin-bottom: 40px;
+    }
+
+    .converter-section h2 {
+      margin-bottom: 20px;
+      color: #0f172a;
+      font-size: 20px;
+    }
+
+    .upload-area {
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    .upload-area.drag-over {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .upload-area p {
+      margin: 10px 0;
+      color: #64748b;
+    }
+
+    .file-input-wrapper {
+      display: inline-block;
+      margin: 20px 0;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      display: none;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .file-input-label:hover {
+      background: #2563eb;
+    }
+
+    .upload-status {
+      margin-top: 15px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .upload-status.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .upload-status.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .output-area {
+      display: none;
+    }
+
+    .output-area.visible {
+      display: block;
+    }
+
+    .json-output {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 20px 0;
+    }
+
+    .conversion-stats {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #166534;
+    }
+
+    .conversion-stats .stat {
+      margin: 5px 0;
+    }
+
+    .conversion-stats .stat strong {
+      display: inline-block;
+      width: 200px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .action-buttons .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-primary:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-secondary:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .copy-status {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 5px 10px;
+      background: #dcfce7;
+      color: #166534;
+      border-radius: 4px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .copy-status.show {
+      opacity: 1;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 20px;
+      color: #1e40af;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <h1 class="site-title">CSV to JSON Converter</h1>
+      <p class="site-subtitle">Migrate test specifications to the new JSON format</p>
+    </div>
+  </div>
+</header>
+
+<main class="converter-container">
+
+  <a href="index.html" class="back-link">← Back to Analyser (CSV)</a>
+  <a href="index2.html" class="back-link">← Back to Analyser (JSON)</a>
+
+  <div class="info-box">
+    <strong>How it works:</strong>
+    Upload your existing CSV test specification file (the 13-column format used by the original tool).
+    The converter will transform it into the new JSON format with cleaner structure and better LLM compatibility.
+    The correct answer key is automatically omitted from misconceptions in JSON.
+  </div>
+
+  <!-- Upload Section -->
+  <div class="converter-section">
+    <h2>1. Upload CSV Test Specification</h2>
+
+    <div class="upload-area" id="upload-area">
+      <div class="file-input-wrapper">
+        <label for="csv-input" class="file-input-label">Choose CSV File</label>
+        <input type="file" id="csv-input" accept=".csv">
+      </div>
+      <p>or drag and drop a CSV file here</p>
+      <p style="font-size: 12px; color: #94a3b8;">
+        Must have headers: question_number, topic_code, topic_name, question, answer_a, answer_b, answer_c, answer_d, correct_answer, misconception_a, misconception_b, misconception_c, misconception_d
+      </p>
+    </div>
+
+    <div class="upload-status" id="upload-status"></div>
+  </div>
+
+  <!-- Output Section -->
+  <div class="converter-section output-area" id="output-area">
+    <h2>2. Converted JSON Output</h2>
+
+    <div class="conversion-stats" id="conversion-stats"></div>
+
+    <div class="json-output" id="json-output"></div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btn-download">Download as .json File</button>
+      <button class="btn btn-secondary" id="btn-copy">
+        Copy to Clipboard
+        <span class="copy-status" id="copy-status">Copied!</span>
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// CSV PARSING (from app.js)
+// ═══════════════════════════════════════════════════════════
+
+function parseTestSpecCsv(csvText) {
+  const result = Papa.parse(csvText.trim(), {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: h => h.trim().toLowerCase().replace(/[\s\-]+/g, '_')
+  });
+
+  if (result.errors.length > 0 && result.data.length === 0) {
+    throw new Error('CSV could not be parsed: ' + result.errors[0].message);
+  }
+
+  return result.data
+    .filter(row => row.question_number || row.question)
+    .map((row, i) => {
+      const topicCode = (row.topic_code || '').trim();
+      const topicName = (row.topic_name || row.section || '').trim();
+      return {
+        number:  (row.question_number || String(i + 1)).trim(),
+        topicCode,
+        topicName,
+        question: (row.question || '').trim(),
+        answers: {
+          A: (row.answer_a || '').trim(),
+          B: (row.answer_b || '').trim(),
+          C: (row.answer_c || '').trim(),
+          D: (row.answer_d || '').trim()
+        },
+        correct: (row.correct_answer || '').trim().toUpperCase(),
+        misconceptions: {
+          A: (row.misconception_a || '').trim(),
+          B: (row.misconception_b || '').trim(),
+          C: (row.misconception_c || '').trim(),
+          D: (row.misconception_d || '').trim()
+        }
+      };
+    });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CSV TO JSON CONVERSION
+// ═══════════════════════════════════════════════════════════
+
+function convertToJson(csvQuestions) {
+  // Transform to JSON format: omit correct answer from misconceptions
+  return csvQuestions.map(q => {
+    const mc = {};
+    ['A', 'B', 'C', 'D'].forEach(letter => {
+      if (letter !== q.correct && q.misconceptions[letter]) {
+        mc[letter] = q.misconceptions[letter];
+      }
+    });
+
+    return {
+      question_number: parseInt(q.number) || null,
+      topic_code: q.topicCode,
+      topic_name: q.topicName,
+      question: q.question,
+      options: {
+        A: q.answers.A,
+        B: q.answers.B,
+        C: q.answers.C,
+        D: q.answers.D
+      },
+      correct_answer: q.correct,
+      misconceptions: mc
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// UI LOGIC
+// ═══════════════════════════════════════════════════════════
+
+let currentJson = null;
+let currentFilename = 'test_spec.json';
+
+const uploadArea = document.getElementById('upload-area');
+const csvInput = document.getElementById('csv-input');
+const uploadStatus = document.getElementById('upload-status');
+const outputArea = document.getElementById('output-area');
+const jsonOutput = document.getElementById('json-output');
+const conversionStats = document.getElementById('conversion-stats');
+
+// File input click
+csvInput.addEventListener('change', handleFileSelect);
+
+// Drag and drop
+uploadArea.addEventListener('dragover', e => {
+  e.preventDefault();
+  uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    csvInput.files = files;
+    handleFileSelect();
+  }
+});
+
+function handleFileSelect() {
+  const file = csvInput.files[0];
+  if (!file) return;
+
+  if (!file.name.endsWith('.csv')) {
+    showStatus('Error: Please select a .csv file', 'error');
+    return;
+  }
+
+  currentFilename = file.name.replace('.csv', '.json');
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const csvText = e.target.result;
+      const csvQuestions = parseTestSpecCsv(csvText);
+
+      if (csvQuestions.length === 0) {
+        throw new Error('No questions found in CSV');
+      }
+
+      currentJson = convertToJson(csvQuestions);
+
+      displayOutput(csvQuestions);
+      showStatus(`✓ Successfully converted ${csvQuestions.length} questions`, 'success');
+      uploadArea.classList.remove('drag-over');
+    } catch (err) {
+      showStatus(`Error: ${err.message}`, 'error');
+    }
+  };
+
+  reader.readAsText(file);
+}
+
+function displayOutput(csvQuestions) {
+  // Show conversion stats
+  const sections = new Set(csvQuestions.map(q => q.topicCode));
+  const correctDistribution = { A: 0, B: 0, C: 0, D: 0 };
+  csvQuestions.forEach(q => { correctDistribution[q.correct]++; });
+
+  conversionStats.innerHTML = `
+    <div class="stat"><strong>Total questions:</strong> ${csvQuestions.length}</div>
+    <div class="stat"><strong>Topic codes:</strong> ${sections.size}</div>
+    <div class="stat"><strong>Correct answer distribution:</strong> A=${correctDistribution.A}, B=${correctDistribution.B}, C=${correctDistribution.C}, D=${correctDistribution.D}</div>
+  `;
+
+  // Show JSON output
+  jsonOutput.textContent = JSON.stringify(currentJson, null, 2);
+  outputArea.classList.add('visible');
+
+  // Scroll to output
+  setTimeout(() => {
+    outputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function showStatus(message, type) {
+  uploadStatus.textContent = message;
+  uploadStatus.className = `upload-status ${type}`;
+}
+
+// Download button
+document.getElementById('btn-download').addEventListener('click', () => {
+  if (!currentJson) return;
+
+  const jsonString = JSON.stringify(currentJson, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = currentFilename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// Copy button
+document.getElementById('btn-copy').addEventListener('click', () => {
+  if (!currentJson) return;
+
+  const jsonString = JSON.stringify(currentJson, null, 2);
+  navigator.clipboard.writeText(jsonString).then(() => {
+    const copyStatus = document.getElementById('copy-status');
+    copyStatus.classList.add('show');
+    setTimeout(() => copyStatus.classList.remove('show'), 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = jsonString;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const copyStatus = document.getElementById('copy-status');
+    copyStatus.classList.add('show');
+    setTimeout(() => copyStatus.classList.remove('show'), 2000);
+  });
+});
+</script>
+
+</body>
+</html>

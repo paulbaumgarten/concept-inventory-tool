@@ -1,0 +1,74 @@
+[
+  {
+    "question_number": 1,
+    "topic_code": "A1.1",
+    "topic_name": "CPU Components",
+    "question": "A computer's CPU contains a Program Counter (PC). What does the PC store?",
+    "options": {
+      "A": "The result of the most recent calculation",
+      "B": "The address of the next instruction to be fetched",
+      "C": "The instruction currently being decoded",
+      "D": "The number of instructions executed so far"
+    },
+    "correct_answer": "B",
+    "misconceptions": {
+      "A": "PC stores computation results — confuses PC with accumulator",
+      "C": "PC tracks the current decode stage — confuses PC with IR",
+      "D": "PC counts total instructions — misunderstands its role as a counter"
+    }
+  },
+  {
+    "question_number": 2,
+    "topic_code": "A1.1",
+    "topic_name": "CPU Components",
+    "question": "Which bus carries the memory address of the data or instruction the CPU wishes to access?",
+    "options": {
+      "A": "Data bus",
+      "B": "Control bus",
+      "C": "Address bus",
+      "D": "System bus"
+    },
+    "correct_answer": "C",
+    "misconceptions": {
+      "A": "Data bus moves addresses — confuses data bus with address bus",
+      "B": "Control bus handles addressing — invents addressing role for control bus",
+      "D": "System bus is a single unified bus — fails to distinguish individual buses"
+    }
+  },
+  {
+    "question_number": 3,
+    "topic_code": "A1.1",
+    "topic_name": "CPU Components",
+    "question": "During the Fetch-Decode-Execute cycle, when does the Program Counter increment?",
+    "options": {
+      "A": "After the instruction has been executed",
+      "B": "During the decode stage",
+      "C": "After the instruction has been fetched",
+      "D": "Before the instruction is fetched"
+    },
+    "correct_answer": "C",
+    "misconceptions": {
+      "A": "PC updates after execution — delays increment to end of cycle",
+      "B": "PC increments during decode — confuses increment timing with decode",
+      "D": "PC pre-increments before fetch — reverses the sequence entirely"
+    }
+  },
+  {
+    "question_number": 4,
+    "topic_code": "A1.2",
+    "topic_name": "Primary Memory",
+    "question": "A cache miss occurs when:",
+    "options": {
+      "A": "The CPU writes data to the wrong memory address",
+      "B": "The requested data is not found in cache and must be fetched from RAM",
+      "C": "Cache memory becomes full and data must be evicted",
+      "D": "The cache and RAM contain conflicting versions of the same data"
+    },
+    "correct_answer": "B",
+    "misconceptions": {
+      "A": "Cache miss means a write error — confuses miss with memory addressing fault",
+      "C": "Cache full equals a cache miss — confuses eviction with a miss event",
+      "D": "Cache miss means a data conflict — invents a consistency error"
+    }
+  }
+]

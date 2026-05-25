@@ -36,15 +36,14 @@
       <div class="upload-card" id="card-test">
         <div class="upload-icon">&#128203;</div>
         <h3>Test Specification</h3>
-        <p>The CSV or JSON file defining your questions, answer options, correct answers, and misconceptions.</p>
+        <p>The CSV file defining your questions, answer options, correct answers, and misconceptions.</p>
         <label class="file-label" for="input-test">
           <span id="label-test">Choose File</span>
-          <input type="file" id="input-test" accept=".csv,.json" class="file-input">
+          <input type="file" id="input-test" accept=".csv" class="file-input">
         </label>
         <div class="file-status" id="status-test"></div>
         <button id="btn-print-test" class="btn btn-secondary" disabled>Print Student Test</button>
-        <a href="samples/test_spec_sample.json" download class="sample-link">Download sample JSON file</a>
-        <a href="samples/test_spec_sample.csv" download class="sample-link">Download sample CSV file</a>
+        <a href="samples/test_spec_sample.csv" download class="sample-link">Download sample file</a>
       </div>
 
       <div class="upload-card" id="card-answers">
@@ -63,8 +62,8 @@
     <div class="upload-actions">
       <button id="btn-analyse" class="btn btn-primary btn-large" disabled>Analyse Results</button>
       <p class="upload-note">
-        Need help with the JSON or CSV format?
-        <a href="#" id="link-format-guide">View format guide and AI generation prompt</a>
+        Need help with the CSV format?
+        <a href="#" id="link-csv-format">View format guide and AI generation prompt</a>
       </p>
     </div>
   </section>
@@ -189,49 +188,33 @@
     </div>
     <div class="modal-body">
 
-      <p>Copy the prompt below and paste it into your preferred AI assistant (Claude, ChatGPT, Gemini, etc.). Fill in the bracketed placeholders with your subject and requirements, then save the JSON output as a <strong>.json</strong> file and upload it here.</p>
+      <p>Copy the prompt below and paste it into your preferred AI assistant (Claude, ChatGPT, Gemini, etc.). Fill in the bracketed placeholders with your subject and requirements, then paste the CSV output into a new file.</p>
 
       <div class="prompt-box">
         <div class="prompt-box-header">
-          <span>LLM Generation Prompt (JSON format)</span>
+          <span>LLM Generation Prompt</span>
           <button id="btn-copy-prompt" class="btn btn-secondary btn-small">Copy to Clipboard</button>
         </div>
         <pre id="llm-prompt-text" class="prompt-pre"></pre>
       </div>
 
       <div class="format-reference">
-        <h3>Format Reference</h3>
+        <h3>CSV Format Reference</h3>
 
-        <h4>1. Test Specification — JSON format (recommended)</h4>
-        <p>The AI prompt above will generate this format. Save the output as a <strong>.json</strong> file:</p>
-        <code class="code-block">[
-  {
-    "question_number": 1,
-    "topic_code": "A1.1",
-    "topic_name": "CPU Architecture",
-    "question": "Full question stem text",
-    "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
-    "correct_answer": "B",
-    "misconceptions": { "A": "...", "C": "...", "D": "..." }
-  },
-  ...
-]</code>
+        <h4>1. Test Specification CSV</h4>
+        <p>The AI prompt above will generate this format. Headers must appear exactly as shown:</p>
+        <code class="code-block">question_number,topic_code,topic_name,question,answer_a,answer_b,answer_c,answer_d,correct_answer,misconception_a,misconception_b,misconception_c,misconception_d</code>
         <ul>
           <li><strong>question_number</strong> — sequential integer (1, 2, 3…)</li>
           <li><strong>topic_code</strong> — hierarchical code e.g. <em>A1.1</em>, <em>B2.3</em></li>
           <li><strong>topic_name</strong> — human-readable section name (same for all questions with the same code)</li>
           <li><strong>question</strong> — full question stem text</li>
-          <li><strong>options</strong> — object with keys A, B, C, D; values are answer text (no letter prefix)</li>
+          <li><strong>answer_a</strong> through <strong>answer_d</strong> — the four answer choice texts (no letter prefix)</li>
           <li><strong>correct_answer</strong> — one of: A, B, C, or D</li>
-          <li><strong>misconceptions</strong> — object with only the <em>wrong</em> answer letters as keys; omit the correct answer key entirely</li>
+          <li><strong>misconception_a</strong> through <strong>misconception_d</strong> — brief misconception description for each <em>wrong</em> answer; leave blank for the correct answer</li>
         </ul>
 
-        <h4>1b. Test Specification — CSV format (still supported)</h4>
-        <p>Legacy CSV files continue to work. The header must be exactly:</p>
-        <code class="code-block">question_number,topic_code,topic_name,question,answer_a,answer_b,answer_c,answer_d,correct_answer,misconception_a,misconception_b,misconception_c,misconception_d</code>
-        <p>Leave the <code>misconception_*</code> cell blank (not a space or dash) for the correct answer.</p>
-
-        <h4>2. Student Responses CSV (Google Forms export) — unchanged</h4>
+        <h4>2. Student Responses CSV (Google Forms export)</h4>
         <ul>
           <li>Column 1 — Timestamp (ignored)</li>
           <li>Column 2 — Email address</li>
@@ -246,6 +229,6 @@
   </div>
 </div>
 
-<script src="js/app2.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

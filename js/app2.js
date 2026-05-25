@@ -14,7 +14,7 @@ const state = {
 };
 
 // ══════════════════════════════════════════════════════════════
-// LLM PROMPT TEMPLATE
+// LLM PROMPT TEMPLATE (JSON FORMAT)
 // ══════════════════════════════════════════════════════════════
 const LLM_PROMPT = `You are an expert curriculum designer creating a Concept Inventory — a diagnostic multiple-choice assessment designed to reveal specific student misconceptions.
 
@@ -27,25 +27,39 @@ Generate a Concept Inventory for the following specification:
   Target level:   [e.g. Year 12, pre-exam diagnostic]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OUTPUT FORMAT — produce a CSV with this exact header row:
+OUTPUT FORMAT — produce a JSON array with this structure:
 
-question_number,topic_code,topic_name,question,answer_a,answer_b,answer_c,answer_d,correct_answer,misconception_a,misconception_b,misconception_c,misconception_d
+[
+  {
+    "question_number": 1,
+    "topic_code": "A1.1",
+    "topic_name": "CPU Architecture",
+    "question": "Full question stem text here",
+    "options": {
+      "A": "Text of option A",
+      "B": "Text of option B",
+      "C": "Text of option C",
+      "D": "Text of option D"
+    },
+    "correct_answer": "B",
+    "misconceptions": {
+      "A": "SHORT phrase (5-15 words) describing the misconception if a student chooses A",
+      "C": "SHORT phrase describing the misconception if a student chooses C",
+      "D": "SHORT phrase describing the misconception if a student chooses D"
+    }
+  }
+]
 
-Column definitions:
+Field definitions:
   question_number — sequential integer starting at 1
   topic_code      — hierarchical code e.g. A1.1, B2.3 (same for all questions in the same subtopic)
-  topic_name      — human-readable subtopic name (same as all rows with the same topic_code)
+  topic_name      — human-readable subtopic name (same for all questions with the same topic_code)
   question        — full question stem text (standalone, no references to other questions)
-  answer_a        — text of option A (no "A." prefix)
-  answer_b        — text of option B (no "B." prefix)
-  answer_c        — text of option C (no "C." prefix)
-  answer_d        — text of option D (no "D." prefix)
-  correct_answer  — exactly one uppercase letter: A, B, C, or D
-  misconception_a — SHORT phrase (5-15 words) describing the misconception a student holds if they choose A;
-                    leave BLANK if A is the correct answer
-  misconception_b — same for B
-  misconception_c — same for C
-  misconception_d — same for D
+  options         — object with exactly four keys: "A", "B", "C", "D" (no letter prefix in the values)
+  correct_answer  — exactly one uppercase letter: "A", "B", "C", or "D"
+  misconceptions  — object containing ONLY the wrong answer letters as keys;
+                    each value is a SHORT phrase (5-15 words) describing the misconception;
+                    DO NOT include the correct answer letter in this object at all
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DESIGN RULES:
@@ -54,23 +68,23 @@ DESIGN RULES:
      overgeneralising rules, misapplying definitions, or conflating related terms
   3. Questions test CONCEPTUAL UNDERSTANDING — not memorisation, recall, or calculation
   4. Distribute correct answers roughly evenly across A, B, C, D
-  5. Group questions so consecutive rows share the same topic_code
+  5. Group questions so consecutive elements share the same topic_code
   6. No "all of the above", "none of the above", or negative phrasing ("Which is NOT...")
   7. Each question must be answerable in 30-60 seconds
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OUTPUT RULES:
-  • Output ONLY the raw CSV — start with the header row, then data rows
-  • No markdown code fences, no preamble, no explanation
-  • Use standard CSV quoting: wrap fields containing commas in double quotes
-  • Leave misconception cells completely empty (no space, no dash) for the correct answer`;
+  • Output ONLY the raw JSON array — no markdown code fences, no preamble, no explanation
+  • Start directly with [ and end with ]
+  • Use standard JSON: double-quoted strings, no trailing commas
+  • The misconceptions object must omit the correct answer key entirely (not set it to null or "")`;
 
 
 // ══════════════════════════════════════════════════════════════
 // CSV PARSING
 // ══════════════════════════════════════════════════════════════
 
-function parseTestSpec(csvText) {
+function parseTestSpecCsv(csvText) {
   const result = Papa.parse(csvText.trim(), {
     header: true,
     skipEmptyLines: true,
@@ -111,6 +125,59 @@ function parseTestSpec(csvText) {
         }
       };
     });
+}
+
+function parseTestSpecJson(jsonText) {
+  let data;
+  try {
+    data = JSON.parse(jsonText);
+  } catch (e) {
+    throw new Error('Test spec JSON could not be parsed: ' + e.message);
+  }
+
+  if (!Array.isArray(data)) {
+    throw new Error('Test spec JSON must be an array of question objects.');
+  }
+
+  return data
+    .filter(item => item.question_number || item.question)
+    .map((item, i) => {
+      const topicCode = String(item.topic_code || '').trim();
+      const topicName = String(item.topic_name || '').trim();
+      const section   = topicCode && topicName
+        ? `${topicCode} — ${topicName}`
+        : (topicName || topicCode || 'General');
+
+      const opts = item.options || {};
+      const mc   = item.misconceptions || {};
+      const correct = String(item.correct_answer || '').trim().toUpperCase();
+
+      return {
+        index:   i,
+        number:  String(item.question_number || i + 1).trim(),
+        topicCode,
+        topicName,
+        section,
+        question: String(item.question || '').trim(),
+        answers: {
+          A: String(opts.A || '').trim(),
+          B: String(opts.B || '').trim(),
+          C: String(opts.C || '').trim(),
+          D: String(opts.D || '').trim()
+        },
+        correct,
+        misconceptions: {
+          A: String(mc.A || '').trim(),
+          B: String(mc.B || '').trim(),
+          C: String(mc.C || '').trim(),
+          D: String(mc.D || '').trim()
+        }
+      };
+    });
+}
+
+function parseTestSpec(text, isJson) {
+  return isJson ? parseTestSpecJson(text) : parseTestSpecCsv(text);
 }
 
 function parseStudentAnswers(csvText) {
@@ -778,91 +845,27 @@ function switchTab(name) {
 // PRINTABLE TEST GENERATOR
 // ══════════════════════════════════════════════════════════════
 
-function generatePrintableTest(csvText) {
+function generatePrintableTest(questions) {
   try {
-    // Parse CSV using PapaParse with header normalization
-    const results = Papa.parse(csvText, {
-      header: true,
-      transformHeader: (h) => h.toLowerCase().replace(/\s|-/g, '_').trim(),
-      skipEmptyLines: true,
-      dynamicTyping: false
-    });
-
-    if (results.errors.length > 0) {
-      const errors = results.errors.map(e => `Line ${e.row + 1}: ${e.message}`).join('\n');
-      throw new Error('CSV parsing errors:\n' + errors);
+    if (!questions || questions.length === 0) {
+      throw new Error('No questions available. Please upload a test specification first.');
     }
 
-    const rows = results.data.filter(row => row.question_number); // Filter out empty rows
-
-    if (rows.length === 0) {
-      throw new Error('No questions found in the CSV.');
-    }
-
-    // Validate each row has required fields
-    const validRows = [];
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const rowNum = i + 2; // +2 because row 1 is header, +1 for array index
-
-      // Check for required fields
-      const missingFields = [];
-      if (!row.question_number) missingFields.push('question_number');
-      if (!row.question) missingFields.push('question');
-      if (!row.answer_a) missingFields.push('answer_a');
-      if (!row.answer_b) missingFields.push('answer_b');
-      if (!row.answer_c) missingFields.push('answer_c');
-      if (!row.answer_d) missingFields.push('answer_d');
-
-      if (missingFields.length > 0) {
-        console.warn(`Row ${rowNum} missing fields: ${missingFields.join(', ')}. Row content:`, row);
-        throw new Error(
-          `Row ${rowNum} is missing required field(s): ${missingFields.join(', ')}\n` +
-          `Question: "${row.question || '(blank)'}"`
-        );
-      }
-
-      // Check for unexpected extra fields (sign of CSV corruption)
-      const expectedFields = ['question_number', 'topic_code', 'topic_name', 'question',
-                            'answer_a', 'answer_b', 'answer_c', 'answer_d',
-                            'correct_answer', 'misconception_a', 'misconception_b',
-                            'misconception_c', 'misconception_d'];
-      const extraFields = Object.keys(row).filter(k => k && !expectedFields.includes(k));
-      if (extraFields.length > 0) {
-        console.warn(`Row ${rowNum} has unexpected extra fields: ${extraFields.join(', ')}. Row content:`, row);
-        throw new Error(
-          `Row ${rowNum} has unexpected extra field(s): ${extraFields.join(', ')}\n` +
-          `This usually indicates a CSV formatting problem (e.g., extra quotes or commas).\n` +
-          `Question: "${row.question || '(blank)'}"`
-        );
-      }
-
-      validRows.push({ ...row, rowNum });
-    }
-
-    // Build HTML content
-    const questionsHtml = validRows.map(row => {
-      const qNum = row.question_number;
-      const qText = row.question || '';
-      const answerA = row.answer_a || '';
-      const answerB = row.answer_b || '';
-      const answerC = row.answer_c || '';
-      const answerD = row.answer_d || '';
-
+    const questionsHtml = questions.map(q => {
       return `
         <li class="question">
-          <p class="stem"><strong>${qNum}.</strong> ${qText}</p>
+          <p class="stem"><strong>${q.number}.</strong> ${q.question || q.section}</p>
           <ul class="options">
-            <li>A. ${answerA}</li>
-            <li>B. ${answerB}</li>
-            <li>C. ${answerC}</li>
-            <li>D. ${answerD}</li>
+            <li>A. ${q.answers.A}</li>
+            <li>B. ${q.answers.B}</li>
+            <li>C. ${q.answers.C}</li>
+            <li>D. ${q.answers.D}</li>
           </ul>
         </li>
       `;
     }).join('');
 
-    const totalQuestions = rows.length;
+    const totalQuestions = questions.length;
 
     const html = `
 <!DOCTYPE html>
@@ -1010,11 +1013,13 @@ function generatePrintableTest(csvText) {
 // FILE UPLOAD HANDLERS
 // ══════════════════════════════════════════════════════════════
 
-let testCsvText     = null;
-let answersCsvText  = null;
+let testSpecText   = null;
+let testSpecIsJson = false;
+let parsedTestSpec = null;
+let answersCsvText = null;
 
 function updateAnalyseBtn() {
-  document.getElementById('btn-analyse').disabled = !(testCsvText && answersCsvText);
+  document.getElementById('btn-analyse').disabled = !(testSpecText && answersCsvText);
 }
 
 document.getElementById('input-test').addEventListener('change', function () {
@@ -1022,7 +1027,15 @@ document.getElementById('input-test').addEventListener('change', function () {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    testCsvText = e.target.result;
+    const content = e.target.result;
+    const ext     = file.name.split('.').pop().toLowerCase();
+
+    testSpecIsJson = (ext === 'json') ||
+                     (ext !== 'csv' && content.trimStart().startsWith('['));
+
+    testSpecText   = content;
+    parsedTestSpec = null;
+
     document.getElementById('label-test').textContent   = file.name;
     document.getElementById('status-test').textContent  = '✓ ' + file.name + ' loaded';
     document.getElementById('status-test').className    = 'file-status status-ok';
@@ -1050,10 +1063,11 @@ document.getElementById('input-answers').addEventListener('change', function () 
 
 document.getElementById('btn-analyse').addEventListener('click', () => {
   try {
-    state.testSpec = parseTestSpec(testCsvText);
+    parsedTestSpec = parseTestSpec(testSpecText, testSpecIsJson);
+    state.testSpec = parsedTestSpec;
     state.students = parseStudentAnswers(answersCsvText);
 
-    if (state.testSpec.length === 0) throw new Error('No questions found in the test specification CSV.');
+    if (state.testSpec.length === 0) throw new Error('No questions found in the test specification.');
     if (state.students.length  === 0) throw new Error('No students found in the student answers CSV.');
 
     computeAll();
@@ -1075,7 +1089,15 @@ document.getElementById('btn-new-analysis').addEventListener('click', () => {
 });
 
 document.getElementById('btn-print-test').addEventListener('click', () => {
-  generatePrintableTest(testCsvText);
+  if (!parsedTestSpec) {
+    try {
+      parsedTestSpec = parseTestSpec(testSpecText, testSpecIsJson);
+    } catch (err) {
+      alert('Error reading test specification: ' + err.message);
+      return;
+    }
+  }
+  generatePrintableTest(parsedTestSpec);
 });
 
 
@@ -1110,7 +1132,7 @@ function closePromptModal() {
 }
 
 document.getElementById('btn-ai-prompt').addEventListener('click', openPromptModal);
-document.getElementById('link-csv-format').addEventListener('click', e => { e.preventDefault(); openPromptModal(); });
+document.getElementById('link-format-guide').addEventListener('click', e => { e.preventDefault(); openPromptModal(); });
 document.getElementById('btn-close-modal').addEventListener('click', closePromptModal);
 document.getElementById('modal-ai-prompt').addEventListener('click', function (e) {
   if (e.target === this) closePromptModal();
