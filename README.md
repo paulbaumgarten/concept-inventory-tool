@@ -66,6 +66,27 @@ Create a file defining your concept inventory questions. Use either JSON or CSV 
 
 ### Step 2: Prepare Student Responses
 
+You can collect student responses in two ways:
+
+#### Option A: Use a Google Form (Recommended for Classroom Use)
+
+We provide a **ready-to-customize Google Form template** that automatically collects responses in the correct format:
+
+1. [Open the Google Form template](https://docs.google.com/forms/d/1npug5l4sc3cfkdXrhAUiNNzVVIhnDSfQxxYInn3qr40/copy)
+2. Click **"Make a copy"** to create your own version
+3. Customize the form with your questions and answer options
+4. Share the form link with your students
+5. Once students respond, download responses as CSV from Google Forms (Responses → Download → CSV)
+6. Upload the CSV file directly to this tool
+
+**Advantages:**
+- Automatically formatted in the correct structure
+- Easy student access (just a link)
+- Built-in response collection and tracking
+- No manual data entry needed
+
+#### Option B: Manually Prepare a CSV File
+
 Create a file with student answers in one of the following formats:
 - Simple format: `question_number,student_id,answer`
 - Extended format: Additional columns for demographics or metadata
